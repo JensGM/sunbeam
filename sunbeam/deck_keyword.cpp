@@ -60,6 +60,7 @@ void sunbeam::export_DeckKeyword() {
         .def( "__getitem__", getRecord, ref() )
         .def( "__len__", &DeckKeyword::size )
         .add_property("name", py::make_function( &DeckKeyword::name, copy() ))
+        .add_property("fixed_size", py::make_function( &DeckKeyword::isFixedSize ))
         ;
 
     py::class_< DeckRecord >( "DeckRecord", py::no_init )

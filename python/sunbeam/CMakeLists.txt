@@ -7,3 +7,5 @@ set(PYTHON_SOURCES
     schedule.py)
 
 add_python_package(sunbeam sunbeam "${PYTHON_SOURCES}")
+
+add_subdirectory( deck )
