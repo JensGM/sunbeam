@@ -2,4 +2,4 @@
 
 """
 
-from .deck       import Deck, repeat, default
+from .deck import Deck, repeat, default
