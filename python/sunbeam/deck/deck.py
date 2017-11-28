@@ -77,13 +77,13 @@ class Deck(MutableSequence, Hashable):
 
         Args:
             deck (str): Either an eclipse deck string or path to a file to open.
-            keywords (dict|[dict]): List of keyword parser extensions in opm-parser
-                format. A description of the opm-parser keyword format can be found
-                at: https://github.com/OPM/opm-parser/blob/master/docs/keywords.txt
-            recovery ((str, action)|[(str, action)]): List of error recoveries.
-                An error recovery is defined by a pair of a string naming the error
-                event to be handled and the action taken for this error event. The
-                named error event can be one of the following:
+            keywords (dict|[dict], optional): List of keyword parser extensions in
+                opm-parser format. A description of the opm-parser keyword format can be
+                found at:https://github.com/OPM/opm-parser/blob/master/docs/keywords.txt
+            recovery ((str, action)|[(str, action)], optional): List of error
+                recoveries. An error recovery is defined by a pair of a string naming
+                the error event to be handled and the action taken for this error event.
+                The named error event can be one of the following:
                     "PARSE_UNKNOWN_KEYWORD"
                     "PARSE_RANDOM_TEXT"
                     "PARSE_RANDOM_SLASH"
@@ -104,10 +104,10 @@ class Deck(MutableSequence, Hashable):
 
         Examples:
             Parses a deck from the string "RUNSPEC\\n\\nDIMENS\\n 2 2 1 /\\n"
-                deck = sunbeam.parse_deck("RUNSPEC\\n\\nDIMENS\\n 2 2 1 /\\n")
+                deck = Deck.parse("RUNSPEC\\n\\nDIMENS\\n 2 2 1 /\\n")
             Parses a deck from the NORNE data set with recovery set to ignore
             PARSE_RANDOM_SLASH error events.
-                deck = sunbeam.parse_deck('~/opm-data/norne/NORNE_ATW2013.DATA',
+                deck = Deck.parse('~/opm-data/norne/NORNE_ATW2013.DATA',
                     recovery=('PARSE_RANDOM_SLASH', sunbeam.action.ignore))
 
         :rtype: sunbeam.libsunbeam.Deck
