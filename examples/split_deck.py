@@ -14,27 +14,29 @@ def split_deck(filename):
     recovery = ('PARSE_RANDOM_SLASH', action.ignore)
     deck = Deck.parse(filename, recovery=recovery)
 
-    sections = [
+    sections_names = [
         'RUNSPEC', 'GRID', 'EDIT', 'PROPS', 'REGIONS', 'SOLUTION', 'SUMMARY',
         'SCHEDULE'
     ]
-    sections = [deck.select[section] for section in sections]
-    sections = [v for v in sections if v]
-    sections.sort(key=lambda cursor: cursor.index)
+    cursors = [deck.select[s] for s in sections_names]
+    sections = [next(c) for c in cursors if c]
+    sections.sort(key=lambda s: s[0])
 
     written_sections = []
-    for fst, snd in zip(sections, sections[1:]) + [(sections[-1], None)]:
-        f = fst.index
-        s = snd.index if snd else None
-        d = Deck(deck[f:s])
-        with open(fst.value[0] + ".DATA", "w") as f:
+    for s0, s1 in zip(sections, sections[1:]) + [(sections[-1], None)]:
+        start, section = s0
+        stop = s1[0] if s1 else None
+        d = Deck(deck[start:stop])
+
+        section_name = section[0]
+        with open(section_name + ".DATA", "w") as f:
             print(d, file=f)
-        written_sections.append(fst.value[0])
+        written_sections.append(section_name)
 
     master_deck = Deck()
     for section in written_sections:
-        incl = ('INCLUDE', [section + ".DATA"])
-        master_deck.append(incl)
+        include = ('INCLUDE', [section + ".DATA"])
+        master_deck.append(include)
 
     path, extension = os.path.splitext(filename)
     basename = os.path.basename(path)

@@ -1,51 +1,31 @@
 from .parser import parse_deck
-from collections import Hashable, MutableSequence, Sequence, Iterator
+from collections import Hashable, Iterator, MutableSequence, Sized
 from numbers import Integral
 import copy
 import itertools
 import traceback
 
 
-class Cursor(Iterator):
-    def __init__(self, deck, indices, items=None, position=0):
+class Cursor(Iterator, Sized):
+    def __init__(self, deck, indices):
         self._deck = deck
         self._indices = indices
-        self._items = items if items else [deck[i] for i in self._indices]
-        self._position = position
-
-    def _index(self, i):
-        self._update(i)
-        return self._indices[i]
-
-    @property
-    def index(self):
-        return self._index(self._position)
-
-    @property
-    def indices(self):
-        return (self._index(i) for i, _ in enumerate(self._indices))
+        self._items = [deck[i] for i in self._indices]
+        self._position = 0
 
     def __len__(self):
         return len(self._indices)
 
     def next(self):
-        self._update_all()
-        p = self._position + 1
-        if p > len(self):
+        p = self._position
+        self._position = self._position + 1
+        if p >= len(self):
             raise StopIteration()
-        return Cursor(self._deck, self._indices[:], self._items[:], p)
+        self._update(p)
+        return (self._indices[p], self._items[p])
 
     def __next__(self):
         return self.next()
-
-    def slice(self, *args):
-        self._update(self._position)
-        index = self._indices[self._position]
-        s = slice(*args)
-        start = index + s.start if s.start else None
-        stop = index + s.stop if s.stop else None
-        step = s.step if s.step else None
-        return slice(start, stop, step)
 
     def _update(self, i):
         index = self._indices[i]
@@ -56,18 +36,6 @@ class Cursor(Iterator):
             except Exception as e:
                 raise LookupError(
                     "Invalid cursor, has the keyword been removed?")
-
-    def _update_all(self):
-        for i, _ in enumerate(self._indices):
-            self._update(i)
-
-    @property
-    def value(self):
-        return self._items[self._position]
-
-    @property
-    def values(self):
-        return self._items[:]
 
 
 class Deck(MutableSequence, Hashable):
@@ -132,22 +100,12 @@ class Deck(MutableSequence, Hashable):
             def __init__(s, deck):
                 s.deck = deck
 
-            def __getitem__(s, _key):
-                key = _key[0] if isinstance(_key, tuple) else _key
-                index = _key[1] if isinstance(_key, tuple) else 0
+            def __getitem__(s, key):
                 if not isinstance(key, str):
                     raise TypeError(
                         "Deck cursor selection keys must be str, not " +
                         type(key).__name__)
-                if not (isinstance(index, Integral)
-                        or isinstance(index, slice)):
-                    raise TypeError(
-                        "Deck cursor selection indices must be int or slice, not "
-                        + type(index).__name__)
-                indices = s.deck.indices(key)[index]
-                indices = indices if isinstance(indices, list) else [indices]
-                if not indices:
-                    return None
+                indices = s.deck.indices(key)
                 return Cursor(s.deck, indices)
 
         self._cursor_factory = CursorFactory(self)
