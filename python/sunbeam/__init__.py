@@ -2,7 +2,7 @@
 
 """
 
-from .schedule import Well
+from .schedule import Well, Completion
 from .libsunbeam import action
 from .config     import EclipseConfig
 from .parser     import parse_deck, parse
