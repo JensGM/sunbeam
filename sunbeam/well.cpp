@@ -53,7 +53,7 @@ void sunbeam::export_Well() {
         .def( "guide_rate",      &Well::getGuideRate )
         .def( "available_gctrl", &Well::isAvailableForGroupControl )
         .def( "__eq__",          &Well::operator== )
-        .def( "_completions",     &completions )
+        .def( "_completions",    &completions )
         ;
 
     py::class_< std::vector< Well > >( "WellList", py::no_init )
